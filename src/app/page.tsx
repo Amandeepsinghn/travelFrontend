@@ -19,23 +19,23 @@ export default async function HomePage() {
           src="/images/pandaV2.png"
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          className="absolute inset-0 h-full w-full object-cover object-[62%_center] md:object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/45 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/55 via-ink/20 to-transparent md:from-ink/45 md:via-transparent" />
         <div className="relative flex h-full w-full items-center justify-start px-4 md:px-10 lg:px-16">
           <div className="flex w-full max-w-md flex-col items-start text-left">
             <h1 className="animate-rise font-[family-name:var(--font-display)] text-4xl tracking-tight md:text-5xl">
               <span className="text-white">Trail</span>{" "}
               <span className="text-sun">Panda</span>
             </h1>
-            <p className="animate-rise-delay mt-4 text-lg font-medium tracking-tight text-white/92 md:text-xl">
+            <p className="animate-rise-delay mt-4 inline-flex max-w-full rounded-full bg-white/20 px-5 py-2.5 text-sm font-semibold tracking-wide text-white ring-1 ring-white/40">
               Packages that already know the route.
             </p>
-            <p className="animate-rise-late mt-2 text-sm leading-relaxed text-white/80 md:text-base">
+            <p className="animate-rise-late mt-2 inline-flex max-w-full rounded-full bg-white/20 px-5 py-2.5 text-sm font-semibold tracking-wide text-white ring-1 ring-white/40">
               Quiet beaches, hillside stays, and day-by-day itineraries.
             </p>
             <div className="animate-rise-late mt-5 flex flex-wrap justify-start gap-3">
-              <ButtonLink href="/destinations" variant="ghost">
+              <ButtonLink href="/destinations">
                 Explore destinations
               </ButtonLink>
               <ButtonLink href="/packages" variant="primary" className="bg-sun text-ink hover:bg-sun/90">
