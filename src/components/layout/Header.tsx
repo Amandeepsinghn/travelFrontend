@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { isAdmin } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,20 @@ export function Header() {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
   const logout = useAuthStore((s) => s.logout);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-ink/8 bg-foam/80 backdrop-blur-md">
@@ -81,8 +97,78 @@ export function Header() {
               <ButtonLink href="/register">Sign up</ButtonLink>
             </>
           )}
+
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink ring-1 ring-ink/15 hover:bg-white/70 md:hidden"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? "Close menu" : "Open menu"}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {open ? (
+        <div
+          id="mobile-nav"
+          className="border-t border-ink/8 bg-foam/95 px-4 py-3 md:hidden"
+        >
+          <nav className="flex flex-col gap-1">
+            {links.map((link) => {
+              const active = pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "rounded-2xl px-3.5 py-2.5 text-sm font-medium",
+                    active
+                      ? "bg-lagoon/10 text-lagoon-deep"
+                      : "text-ink-soft hover:bg-white/70 hover:text-ink",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="mt-3 flex flex-col gap-2 border-t border-ink/8 pt-3">
+            {!hydrated ? null : user ? (
+              <>
+                {isAdmin(user) ? (
+                  <ButtonLink href="/admin" variant="secondary">
+                    Admin
+                  </ButtonLink>
+                ) : null}
+                <ButtonLink href="/profile" variant="outline">
+                  {user.first_name}
+                </ButtonLink>
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setOpen(false);
+                  }}
+                  className="rounded-full px-3 py-2 text-left text-sm font-medium text-ink-soft hover:text-ink"
+                >
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <ButtonLink href="/login" variant="outline">
+                  Log in
+                </ButtonLink>
+                <ButtonLink href="/register">Sign up</ButtonLink>
+              </>
+            )}
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }
