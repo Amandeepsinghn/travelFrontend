@@ -24,8 +24,9 @@ export function LoginForm() {
     try {
       await login({ email, password });
       const next = searchParams.get("next");
-      // stay on admin flow if we came from there; otherwise always land home
-      router.push(next?.startsWith("/admin") ? next : "/");
+      const safeNext =
+        next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      router.push(safeNext);
       router.refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Login failed");

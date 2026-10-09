@@ -1,4 +1,5 @@
 import { DestinationCard } from "@/components/destinations/DestinationCard";
+import { ContactSection } from "@/components/layout/ContactSection";
 import { PackageCard } from "@/components/packages/PackageCard";
 import { ButtonLink } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -77,6 +78,8 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      <ContactSection />
     </main>
   );
 }

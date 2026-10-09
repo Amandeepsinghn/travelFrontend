@@ -15,6 +15,27 @@ const links = [
   { href: "/hotels", label: "Hotels" },
 ];
 
+const INSTAGRAM_URL = "https://instagram.com/trailpanda04";
+
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
@@ -69,6 +90,16 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Trail Panda on Instagram"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition hover:bg-white/70 hover:text-lagoon"
+          >
+            <InstagramIcon className="h-5 w-5" />
+          </a>
+
           {!hydrated ? (
             <div className="h-9 w-24 animate-pulse rounded-full bg-mist/70" />
           ) : user ? (
@@ -94,7 +125,7 @@ export function Header() {
               <ButtonLink href="/login" variant="outline" className="hidden sm:inline-flex">
                 Log in
               </ButtonLink>
-              <ButtonLink href="/register">Sign up</ButtonLink>
+              <ButtonLink href="/register">Become member</ButtonLink>
             </>
           )}
 
@@ -163,7 +194,7 @@ export function Header() {
                 <ButtonLink href="/login" variant="outline">
                   Log in
                 </ButtonLink>
-                <ButtonLink href="/register">Sign up</ButtonLink>
+                <ButtonLink href="/register">Become member</ButtonLink>
               </>
             )}
           </div>

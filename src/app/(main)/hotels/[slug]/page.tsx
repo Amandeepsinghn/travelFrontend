@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { CommentSection } from "@/components/comments/CommentSection";
 import { CoverMedia } from "@/components/ui/CoverMedia";
 import { ApiError } from "@/lib/api";
 import { stars } from "@/lib/format";
+import { listHotelComments } from "@/services/comments";
 import { getHotel } from "@/services/hotels";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -27,6 +29,8 @@ export default async function HotelDetailPage({ params }: Props) {
     throw error;
   }
 
+  const comments = await listHotelComments(slug).catch(() => []);
+
   return (
     <main>
       <section className="relative min-h-[46vh] overflow-hidden">
@@ -48,7 +52,7 @@ export default async function HotelDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 py-14 md:px-6">
+      <section className="mx-auto max-w-3xl space-y-8 px-4 py-14 md:px-6">
         <div className="panel space-y-4 rounded-3xl p-6">
           {hotel.address ? (
             <p className="text-ink-soft">
@@ -66,6 +70,8 @@ export default async function HotelDetailPage({ params }: Props) {
             </p>
           ) : null}
         </div>
+
+        <CommentSection target="hotel" slug={slug} initialComments={comments} />
       </section>
     </main>
   );

@@ -191,6 +191,27 @@ export type PackageUpdate = {
   is_active?: boolean | null;
 };
 
+export type CommentAuthorOut = {
+  id: number;
+  first_name: string;
+  last_name: string;
+};
+
+export type CommentOut = {
+  id: number;
+  body: string;
+  rating: number | null;
+  package_id: number | null;
+  hotel_id: number | null;
+  created_at: string;
+  user: CommentAuthorOut;
+};
+
+export type CommentCreate = {
+  body: string;
+  rating?: number | null;
+};
+
 export type ApiErrorBody = {
   detail?: string | { msg: string; loc?: (string | number)[] }[];
 };

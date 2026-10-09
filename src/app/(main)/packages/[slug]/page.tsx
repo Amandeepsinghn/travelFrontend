@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CommentSection } from "@/components/comments/CommentSection";
+import { PackageContact } from "@/components/packages/PackageContact";
 import { CoverMedia } from "@/components/ui/CoverMedia";
 import { ApiError } from "@/lib/api";
-import { formatDuration, formatPrice, stars } from "@/lib/format";
+import { stars } from "@/lib/format";
+import { listPackageComments } from "@/services/comments";
 import { getPackage } from "@/services/packages";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -33,6 +36,8 @@ export default async function PackageDetailPage({ params }: Props) {
     pkg.media.find((item) => item.media_type === "image")?.url ||
     null;
 
+  const comments = await listPackageComments(slug).catch(() => []);
+
   return (
     <main>
       <section className="relative min-h-[52vh] overflow-hidden">
@@ -48,10 +53,6 @@ export default async function PackageDetailPage({ params }: Props) {
           <h1 className="mt-2 max-w-3xl font-[family-name:var(--font-display)] text-4xl text-white md:text-6xl">
             {pkg.title}
           </h1>
-          <div className="mt-4 flex flex-wrap gap-4 text-white/85">
-            <span>{formatDuration(pkg.duration_days, pkg.duration_nights)}</span>
-            <span>{formatPrice(pkg.price, pkg.currency)}</span>
-          </div>
           <p className="mt-4 max-w-2xl text-lg text-white/85">
             {pkg.summary || pkg.description || "Detailed itinerary below."}
           </p>
@@ -105,6 +106,13 @@ export default async function PackageDetailPage({ params }: Props) {
         </section>
 
         <aside className="space-y-6">
+          <PackageContact
+            price={pkg.price}
+            currency={pkg.currency}
+            durationDays={pkg.duration_days}
+            durationNights={pkg.duration_nights}
+          />
+
           <div className="panel rounded-3xl p-6">
             <h2 className="font-[family-name:var(--font-display)] text-2xl text-ink">Stays</h2>
             <div className="mt-4 space-y-4">
@@ -150,6 +158,10 @@ export default async function PackageDetailPage({ params }: Props) {
             </div>
           ) : null}
         </aside>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 pb-14 md:px-6">
+        <CommentSection target="package" slug={slug} initialComments={comments} />
       </div>
     </main>
   );
