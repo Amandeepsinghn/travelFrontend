@@ -40,10 +40,11 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <Input
           label="First name"
           name="first_name"
+          autoComplete="given-name"
           required
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
@@ -51,6 +52,7 @@ export function RegisterForm() {
         <Input
           label="Last name"
           name="last_name"
+          autoComplete="family-name"
           required
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}

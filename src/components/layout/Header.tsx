@@ -58,9 +58,9 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-ink/8 bg-foam/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-6">
-        <Link href="/" className="group flex items-baseline gap-2">
-          <span className="font-[family-name:var(--font-display)] text-2xl tracking-tight">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 md:gap-4 md:px-6">
+        <Link href="/" className="group min-w-0 shrink flex items-baseline gap-2">
+          <span className="truncate font-[family-name:var(--font-display)] text-xl tracking-tight md:text-2xl">
             <span className="text-ink">Trail</span>{" "}
             <span className="text-lagoon">Panda</span>
           </span>
@@ -89,19 +89,19 @@ export function Header() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
           <a
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Trail Panda on Instagram"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition hover:bg-white/70 hover:text-lagoon"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink transition hover:bg-white/70 hover:text-lagoon md:h-10 md:w-10"
           >
             <InstagramIcon className="h-5 w-5" />
           </a>
 
           {!hydrated ? (
-            <div className="h-9 w-24 animate-pulse rounded-full bg-mist/70" />
+            <div className="hidden h-9 w-24 animate-pulse rounded-full bg-mist/70 sm:block" />
           ) : user ? (
             <>
               {isAdmin(user) ? (
@@ -115,7 +115,7 @@ export function Header() {
               <button
                 type="button"
                 onClick={logout}
-                className="rounded-full px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink"
+                className="hidden rounded-full px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink sm:inline"
               >
                 Log out
               </button>
@@ -125,13 +125,15 @@ export function Header() {
               <ButtonLink href="/login" variant="outline" className="hidden sm:inline-flex">
                 Log in
               </ButtonLink>
-              <ButtonLink href="/register">Become member</ButtonLink>
+              <ButtonLink href="/register" className="hidden sm:inline-flex">
+                Become member
+              </ButtonLink>
             </>
           )}
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink ring-1 ring-ink/15 hover:bg-white/70 md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink ring-1 ring-ink/15 hover:bg-white/70 md:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
