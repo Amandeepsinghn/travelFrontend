@@ -15,7 +15,7 @@ export default async function NewPackagePage() {
     <div>
       <AdminPageHeader
         title="New package"
-        description="Creates a package with optional days, hotel link, and media."
+        description="Creates a package with optional days, hotel link, and gallery images."
       />
       {destinations.length ? (
         <PackageForm mode="create" destinations={destinations} hotels={hotels} />

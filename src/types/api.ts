@@ -189,6 +189,10 @@ export type PackageUpdate = {
   currency?: string | null;
   cover_image_url?: string | null;
   is_active?: boolean | null;
+  /** If present (including []), replaces existing nested rows entirely. */
+  days?: PackageDayCreate[] | null;
+  hotels?: PackageHotelLinkCreate[] | null;
+  media?: PackageMediaCreate[] | null;
 };
 
 export type CommentAuthorOut = {
@@ -210,6 +214,17 @@ export type CommentOut = {
 export type CommentCreate = {
   body: string;
   rating?: number | null;
+};
+
+export type UploadFolder = "destinations" | "packages" | "hotels" | "general";
+
+export type UploadOut = {
+  url: string;
+  public_id: string | null;
+  width: number | null;
+  height: number | null;
+  format: string | null;
+  bytes: number | null;
 };
 
 export type ApiErrorBody = {

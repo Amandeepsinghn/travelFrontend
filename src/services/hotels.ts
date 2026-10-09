@@ -29,3 +29,10 @@ export function updateHotel(id: number, payload: HotelUpdate, token: string) {
     token,
   });
 }
+
+export function deleteHotel(id: number, token: string) {
+  return apiFetch<void>(`/api/v1/hotels/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}

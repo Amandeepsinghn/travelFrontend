@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminDeleteButton } from "@/features/admin/AdminDeleteButton";
 import { AdminPageHeader } from "@/features/admin/AdminPageHeader";
 import { StatusPill } from "@/features/admin/StatusPill";
 import { formatPrice } from "@/lib/format";
@@ -13,7 +14,7 @@ export default async function AdminPackagesPage() {
     <div>
       <AdminPageHeader
         title="Packages"
-        description="POST /api/v1/packages · PATCH /api/v1/packages/{id}"
+        description="POST · PATCH · DELETE /api/v1/packages/{id}"
         actionHref="/admin/packages/new"
         actionLabel="New package"
       />
@@ -41,12 +42,19 @@ export default async function AdminPackagesPage() {
                     <StatusPill active={pkg.is_active} />
                   </td>
                   <td className="text-right">
-                    <Link
-                      href={`/admin/packages/${pkg.slug}/edit`}
-                      className="text-sm font-semibold text-[#f4b42a] hover:text-white"
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex items-center justify-end gap-4">
+                      <Link
+                        href={`/admin/packages/${pkg.slug}/edit`}
+                        className="text-sm font-semibold text-[#f4b42a] hover:text-white"
+                      >
+                        Edit
+                      </Link>
+                      <AdminDeleteButton
+                        resource="package"
+                        id={pkg.id}
+                        label={pkg.title}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

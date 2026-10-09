@@ -36,3 +36,10 @@ export function updateDestination(
     token,
   });
 }
+
+export function deleteDestination(id: number, token: string) {
+  return apiFetch<void>(`/api/v1/destinations/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}

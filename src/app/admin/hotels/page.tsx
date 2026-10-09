@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminDeleteButton } from "@/features/admin/AdminDeleteButton";
 import { AdminPageHeader } from "@/features/admin/AdminPageHeader";
 import { StatusPill } from "@/features/admin/StatusPill";
 import { listHotels } from "@/services/hotels";
@@ -12,7 +13,7 @@ export default async function AdminHotelsPage() {
     <div>
       <AdminPageHeader
         title="Hotels"
-        description="POST /api/v1/hotels · PATCH /api/v1/hotels/{id}"
+        description="POST · PATCH · DELETE /api/v1/hotels/{id}"
         actionHref="/admin/hotels/new"
         actionLabel="New hotel"
       />
@@ -38,12 +39,19 @@ export default async function AdminHotelsPage() {
                     <StatusPill active={hotel.is_active} />
                   </td>
                   <td className="text-right">
-                    <Link
-                      href={`/admin/hotels/${hotel.slug}/edit`}
-                      className="text-sm font-semibold text-[#f4b42a] hover:text-white"
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex items-center justify-end gap-4">
+                      <Link
+                        href={`/admin/hotels/${hotel.slug}/edit`}
+                        className="text-sm font-semibold text-[#f4b42a] hover:text-white"
+                      >
+                        Edit
+                      </Link>
+                      <AdminDeleteButton
+                        resource="hotel"
+                        id={hotel.id}
+                        label={hotel.name}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

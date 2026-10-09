@@ -40,3 +40,10 @@ export function updatePackage(
     token,
   });
 }
+
+export function deletePackage(id: number, token: string) {
+  return apiFetch<void>(`/api/v1/packages/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}

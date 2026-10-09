@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminDeleteButton } from "@/features/admin/AdminDeleteButton";
 import { AdminPageHeader } from "@/features/admin/AdminPageHeader";
 import { StatusPill } from "@/features/admin/StatusPill";
 import { listDestinations } from "@/services/destinations";
@@ -12,7 +13,7 @@ export default async function AdminDestinationsPage() {
     <div>
       <AdminPageHeader
         title="Destinations"
-        description="POST /api/v1/destinations · PATCH /api/v1/destinations/{id}"
+        description="POST · PATCH · DELETE /api/v1/destinations/{id} (also deactivates packages)"
         actionHref="/admin/destinations/new"
         actionLabel="New destination"
       />
@@ -40,12 +41,19 @@ export default async function AdminDestinationsPage() {
                     <StatusPill active={destination.is_active} />
                   </td>
                   <td className="text-right">
-                    <Link
-                      href={`/admin/destinations/${destination.slug}/edit`}
-                      className="text-sm font-semibold text-[#f4b42a] hover:text-white"
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex items-center justify-end gap-4">
+                      <Link
+                        href={`/admin/destinations/${destination.slug}/edit`}
+                        className="text-sm font-semibold text-[#f4b42a] hover:text-white"
+                      >
+                        Edit
+                      </Link>
+                      <AdminDeleteButton
+                        resource="destination"
+                        id={destination.id}
+                        label={destination.name}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

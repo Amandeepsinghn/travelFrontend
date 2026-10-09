@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { GalleryUploadField } from "@/features/admin/GalleryUploadField";
+import { ImageUploadField } from "@/features/admin/ImageUploadField";
 import { ApiError } from "@/lib/api";
 import { emptyToNull } from "@/lib/form";
 import { createPackage, updatePackage } from "@/services/packages";
@@ -35,6 +37,42 @@ type DayDraft = {
   stopName: string;
 };
 
+function buildDayPayload(days: DayDraft[]): PackageDayCreate[] {
+  return days
+    .filter((day) => day.title.trim())
+    .map((day) => ({
+      day_number: Number(day.day_number) || 1,
+      title: day.title.trim(),
+      description: emptyToNull(day.description),
+      stops: day.stopName.trim()
+        ? [{ name: day.stopName.trim(), sort_order: 1 }]
+        : [],
+    }));
+}
+
+function buildHotelPayload(
+  hotelId: string,
+  hotelNights: string,
+): PackageHotelLinkCreate[] {
+  return hotelId
+    ? [
+        {
+          hotel_id: Number(hotelId),
+          nights: Number(hotelNights) || 1,
+          sort_order: 0,
+        },
+      ]
+    : [];
+}
+
+function buildMediaPayload(galleryUrls: string[]): PackageMediaCreate[] {
+  return galleryUrls.map((url, index) => ({
+    url,
+    media_type: "image",
+    sort_order: index,
+  }));
+}
+
 export function PackageForm({ mode, destinations, hotels, initial }: Props) {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
@@ -54,12 +92,15 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [days, setDays] = useState<DayDraft[]>(
     initial?.days?.length
-      ? initial.days.map((day) => ({
-          day_number: String(day.day_number),
-          title: day.title,
-          description: day.description ?? "",
-          stopName: day.stops?.[0]?.name ?? "",
-        }))
+      ? initial.days
+          .slice()
+          .sort((a, b) => a.day_number - b.day_number)
+          .map((day) => ({
+            day_number: String(day.day_number),
+            title: day.title,
+            description: day.description ?? "",
+            stopName: day.stops?.[0]?.name ?? "",
+          }))
       : [{ day_number: "1", title: "Arrival", description: "", stopName: "" }],
   );
   const [hotelId, setHotelId] = useState(
@@ -68,7 +109,12 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
   const [hotelNights, setHotelNights] = useState(
     initial?.hotels?.[0]?.nights != null ? String(initial.hotels[0].nights) : "1",
   );
-  const [mediaUrl, setMediaUrl] = useState(initial?.media?.[0]?.url ?? "");
+  const [galleryUrls, setGalleryUrls] = useState<string[]>(
+    initial?.media
+      ?.slice()
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((item) => item.url) ?? [],
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -85,6 +131,15 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
     setDays((prev) => prev.map((day, i) => (i === index ? { ...day, ...patch } : day)));
   }
 
+  function removeDay(index: number) {
+    setDays((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      return next.length
+        ? next.map((day, i) => ({ ...day, day_number: String(i + 1) }))
+        : [{ day_number: "1", title: "", description: "", stopName: "" }];
+    });
+  }
+
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!token) {
@@ -94,6 +149,10 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
 
     setPending(true);
     setError(null);
+
+    const dayPayload = buildDayPayload(days);
+    const hotelPayload = buildHotelPayload(hotelId, hotelNights);
+    const mediaPayload = buildMediaPayload(galleryUrls);
 
     try {
       if (mode === "edit" && initial) {
@@ -111,35 +170,13 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
             currency: currency.trim() || "INR",
             cover_image_url: emptyToNull(coverImageUrl),
             is_active: isActive,
+            days: dayPayload,
+            hotels: hotelPayload,
+            media: mediaPayload,
           },
           token,
         );
       } else {
-        const dayPayload: PackageDayCreate[] = days
-          .filter((day) => day.title.trim())
-          .map((day) => ({
-            day_number: Number(day.day_number) || 1,
-            title: day.title.trim(),
-            description: emptyToNull(day.description),
-            stops: day.stopName.trim()
-              ? [{ name: day.stopName.trim(), sort_order: 1 }]
-              : [],
-          }));
-
-        const hotelPayload: PackageHotelLinkCreate[] = hotelId
-          ? [
-              {
-                hotel_id: Number(hotelId),
-                nights: Number(hotelNights) || 1,
-                sort_order: 0,
-              },
-            ]
-          : [];
-
-        const mediaPayload: PackageMediaCreate[] = mediaUrl.trim()
-          ? [{ url: mediaUrl.trim(), media_type: "image", sort_order: 0 }]
-          : [];
-
         const payload: PackageCreate = {
           destination_id: Number(destinationId),
           title: title.trim(),
@@ -217,15 +254,13 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
           placeholder="14999"
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Input label="Currency" name="currency" value={currency} onChange={(e) => setCurrency(e.target.value)} />
-        <Input
-          label="Cover image URL"
-          name="cover_image_url"
-          value={coverImageUrl}
-          onChange={(e) => setCoverImageUrl(e.target.value)}
-        />
-      </div>
+      <Input label="Currency" name="currency" value={currency} onChange={(e) => setCurrency(e.target.value)} />
+      <ImageUploadField
+        label="Cover image"
+        folder="packages"
+        value={coverImageUrl}
+        onChange={setCoverImageUrl}
+      />
       <Checkbox
         label="Active"
         name="is_active"
@@ -233,97 +268,100 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
         onChange={(e) => setIsActive(e.target.checked)}
       />
 
-      {mode === "create" ? (
-        <>
-          <div className="space-y-3 border-t border-white/10 pt-5">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-white">Itinerary days</h2>
-              <Button
-                type="button"
-                variant="outline"
-                className="!text-white !ring-white/20"
-                onClick={() =>
-                  setDays((prev) => [
-                    ...prev,
-                    {
-                      day_number: String(prev.length + 1),
-                      title: "",
-                      description: "",
-                      stopName: "",
-                    },
-                  ])
-                }
-              >
-                Add day
-              </Button>
-            </div>
-            {days.map((day, index) => (
-              <div key={index} className="grid gap-3 rounded-2xl border border-white/10 bg-white/4 p-4 sm:grid-cols-2">
-                <Input
-                  label="Day #"
-                  name={`day_number_${index}`}
-                  type="number"
-                  min={1}
-                  value={day.day_number}
-                  onChange={(e) => updateDay(index, { day_number: e.target.value })}
-                />
-                <Input
-                  label="Title"
-                  name={`day_title_${index}`}
-                  value={day.title}
-                  onChange={(e) => updateDay(index, { title: e.target.value })}
-                />
-                <Input
-                  label="First stop (optional)"
-                  name={`day_stop_${index}`}
-                  value={day.stopName}
-                  onChange={(e) => updateDay(index, { stopName: e.target.value })}
-                />
-                <Textarea
-                  label="Description"
-                  name={`day_description_${index}`}
-                  className="min-h-20"
-                  value={day.description}
-                  onChange={(e) => updateDay(index, { description: e.target.value })}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
-            <Select
-              label="Linked hotel (optional)"
-              name="hotel_id"
-              options={hotelOptions}
-              value={hotelId}
-              onChange={(e) => setHotelId(e.target.value)}
-              placeholder="No hotel"
-            />
+      <div className="space-y-3 border-t border-white/10 pt-5">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-white">Itinerary days</h2>
+          <Button
+            type="button"
+            variant="outline"
+            className="!text-white !ring-white/20"
+            onClick={() =>
+              setDays((prev) => [
+                ...prev,
+                {
+                  day_number: String(prev.length + 1),
+                  title: "",
+                  description: "",
+                  stopName: "",
+                },
+              ])
+            }
+          >
+            Add day
+          </Button>
+        </div>
+        {days.map((day, index) => (
+          <div key={index} className="grid gap-3 rounded-2xl border border-white/10 bg-white/4 p-4 sm:grid-cols-2">
             <Input
-              label="Hotel nights"
-              name="hotel_nights"
+              label="Day #"
+              name={`day_number_${index}`}
               type="number"
               min={1}
-              value={hotelNights}
-              onChange={(e) => setHotelNights(e.target.value)}
+              value={day.day_number}
+              onChange={(e) => updateDay(index, { day_number: e.target.value })}
             />
             <Input
-              label="Media image URL (optional)"
-              name="media_url"
-              className="sm:col-span-2"
-              value={mediaUrl}
-              onChange={(e) => setMediaUrl(e.target.value)}
+              label="Title"
+              name={`day_title_${index}`}
+              value={day.title}
+              onChange={(e) => updateDay(index, { title: e.target.value })}
             />
+            <Input
+              label="First stop (optional)"
+              name={`day_stop_${index}`}
+              value={day.stopName}
+              onChange={(e) => updateDay(index, { stopName: e.target.value })}
+            />
+            <Textarea
+              label="Description"
+              name={`day_description_${index}`}
+              className="min-h-20"
+              value={day.description}
+              onChange={(e) => updateDay(index, { description: e.target.value })}
+            />
+            <div className="sm:col-span-2">
+              <button
+                type="button"
+                onClick={() => removeDay(index)}
+                className="text-xs font-semibold text-red-300 hover:text-red-200"
+              >
+                Remove day
+              </button>
+            </div>
           </div>
-          <p className="text-xs text-white/45">
-            Days, hotel links, and media can only be set on create — edit updates package fields only.
-          </p>
-        </>
-      ) : (
-        <p className="text-xs text-white/45">
-          Editing updates top-level package fields. Itinerary / hotel links need a new create for now.
+        ))}
+      </div>
+
+      <div className="grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">
+        <Select
+          label="Linked hotel (optional)"
+          name="hotel_id"
+          options={hotelOptions}
+          value={hotelId}
+          onChange={(e) => setHotelId(e.target.value)}
+          placeholder="No hotel"
+        />
+        <Input
+          label="Hotel nights"
+          name="hotel_nights"
+          type="number"
+          min={1}
+          value={hotelNights}
+          onChange={(e) => setHotelNights(e.target.value)}
+        />
+      </div>
+
+      <div className="border-t border-white/10 pt-5">
+        <GalleryUploadField
+          label="Gallery images"
+          folder="packages"
+          urls={galleryUrls}
+          onChange={setGalleryUrls}
+        />
+        <p className="mt-2 text-xs text-white/45">
+          Saving replaces the full gallery. Remove all images and save to clear it.
         </p>
-      )}
+      </div>
 
       {error ? <p className="text-sm text-red-300">{error}</p> : null}
       <div className="flex gap-3 pt-2">

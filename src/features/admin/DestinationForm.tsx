@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { ImageUploadField } from "@/features/admin/ImageUploadField";
 import { ApiError } from "@/lib/api";
 import { emptyToNull } from "@/lib/form";
 import { createDestination, updateDestination } from "@/services/destinations";
@@ -85,11 +86,11 @@ export function DestinationForm({ mode, initial }: Props) {
         <Input label="State" name="state" value={state} onChange={(e) => setState(e.target.value)} />
         <Input label="Country" name="country" value={country} onChange={(e) => setCountry(e.target.value)} />
       </div>
-      <Input
-        label="Cover image URL"
-        name="cover_image_url"
+      <ImageUploadField
+        label="Cover image"
+        folder="destinations"
         value={coverImageUrl}
-        onChange={(e) => setCoverImageUrl(e.target.value)}
+        onChange={setCoverImageUrl}
       />
       <Checkbox
         label="Active"

@@ -33,7 +33,7 @@ export default async function EditPackagePage({ params }: Props) {
     <div>
       <AdminPageHeader
         title={`Edit ${pkg.title}`}
-        description={`PATCH /api/v1/packages/${pkg.id}`}
+        description={`PATCH /api/v1/packages/${pkg.id} · days / hotels / media replace when sent`}
       />
       <PackageForm
         mode="edit"

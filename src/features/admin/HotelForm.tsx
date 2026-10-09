@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { ImageUploadField } from "@/features/admin/ImageUploadField";
 import { ApiError } from "@/lib/api";
 import { emptyToNull, optionalNumber } from "@/lib/form";
 import { createHotel, updateHotel } from "@/services/hotels";
@@ -101,11 +102,11 @@ export function HotelForm({ mode, initial }: Props) {
         onChange={(e) => setAmenities(e.target.value)}
         placeholder="Pool, WiFi, Breakfast…"
       />
-      <Input
-        label="Cover image URL"
-        name="cover_image_url"
+      <ImageUploadField
+        label="Cover image"
+        folder="hotels"
         value={coverImageUrl}
-        onChange={(e) => setCoverImageUrl(e.target.value)}
+        onChange={setCoverImageUrl}
       />
       <Checkbox
         label="Active"
