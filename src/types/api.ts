@@ -99,11 +99,19 @@ export type PackageMediaOut = {
   sort_order: number;
 };
 
+export type PackageTermOut = {
+  id: number;
+  text: string;
+  sort_order: number;
+};
+
 export type PackageDetailOut = PackageOut & {
   destination: DestinationOut;
   days: PackageDayOut[];
   hotels: PackageHotelOut[];
   media: PackageMediaOut[];
+  inclusions: PackageTermOut[];
+  exclusions: PackageTermOut[];
 };
 
 export type DestinationCreate = {
@@ -160,6 +168,11 @@ export type PackageMediaCreate = {
   sort_order?: number;
 };
 
+export type PackageTermCreate = {
+  text: string;
+  sort_order?: number;
+};
+
 export type PackageCreate = {
   destination_id: number;
   title: string;
@@ -175,6 +188,8 @@ export type PackageCreate = {
   days?: PackageDayCreate[];
   hotels?: PackageHotelLinkCreate[];
   media?: PackageMediaCreate[];
+  inclusions?: PackageTermCreate[];
+  exclusions?: PackageTermCreate[];
 };
 
 export type PackageUpdate = {
@@ -193,6 +208,8 @@ export type PackageUpdate = {
   days?: PackageDayCreate[] | null;
   hotels?: PackageHotelLinkCreate[] | null;
   media?: PackageMediaCreate[] | null;
+  inclusions?: PackageTermCreate[] | null;
+  exclusions?: PackageTermCreate[] | null;
 };
 
 export type CommentAuthorOut = {

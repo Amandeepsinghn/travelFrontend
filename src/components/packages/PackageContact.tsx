@@ -20,7 +20,7 @@ export function PackageContact({
     <div className="space-y-4">
       <div className="panel rounded-3xl p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-lagoon">
-          Package price
+          Price per person
         </p>
         <p className="mt-2 font-[family-name:var(--font-display)] text-4xl tracking-tight text-ink">
           {formatPrice(price, currency)}

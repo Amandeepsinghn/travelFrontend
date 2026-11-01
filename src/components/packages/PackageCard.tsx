@@ -17,8 +17,11 @@ export function PackageCard({ pkg }: { pkg: PackageOut }) {
           <h3 className="font-[family-name:var(--font-display)] text-xl text-ink transition group-hover:text-lagoon-deep">
             {pkg.title}
           </h3>
-          <p className="shrink-0 text-sm font-semibold text-lagoon-deep">
+          <p className="shrink-0 text-right text-sm font-semibold text-lagoon-deep">
             {formatPrice(pkg.price, pkg.currency)}
+            <span className="mt-0.5 block text-[10px] font-medium uppercase tracking-[0.12em] text-ink/50">
+              per person
+            </span>
           </p>
         </div>
         <p className="line-clamp-2 text-sm text-ink-soft">

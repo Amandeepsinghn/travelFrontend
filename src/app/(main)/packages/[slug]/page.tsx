@@ -7,8 +7,24 @@ import { ApiError } from "@/lib/api";
 import { stars } from "@/lib/format";
 import { listPackageComments } from "@/services/comments";
 import { getPackage } from "@/services/packages";
+import type { PackageTermOut } from "@/types/api";
 
 type Props = { params: Promise<{ slug: string }> };
+
+function TermCard({ title, items }: { title: string; items: PackageTermOut[] }) {
+  const lines = items.slice().sort((a, b) => a.sort_order - b.sort_order);
+  if (!lines.length) return null;
+  return (
+    <article className="panel rounded-3xl p-5">
+      <h3 className="text-xl font-semibold text-ink">{title}</h3>
+      <ul className="mt-3 list-disc space-y-2 pl-5 text-ink-soft">
+        {lines.map((item) => (
+          <li key={item.id}>{item.text}</li>
+        ))}
+      </ul>
+    </article>
+  );
+}
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
@@ -102,6 +118,13 @@ export default async function PackageDetailPage({ params }: Props) {
             ) : (
               <p className="text-ink-soft">Itinerary days will show up here once added.</p>
             )}
+
+            {pkg.inclusions?.length || pkg.exclusions?.length ? (
+              <div className="grid gap-4 pt-2 md:grid-cols-2">
+                <TermCard title="Package inclusion" items={pkg.inclusions ?? []} />
+                <TermCard title="Package exclusion" items={pkg.exclusions ?? []} />
+              </div>
+            ) : null}
           </div>
         </section>
 

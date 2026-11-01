@@ -23,6 +23,56 @@ import type {
   PackageMediaCreate,
 } from "@/types/api";
 
+function TermColumn({
+  title,
+  name,
+  placeholder,
+  items,
+  onChange,
+}: {
+  title: string;
+  name: string;
+  placeholder: string;
+  items: TermDraft[];
+  onChange: React.Dispatch<React.SetStateAction<TermDraft[]>>;
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <Button
+          type="button"
+          variant="outline"
+          className="!text-white !ring-white/20"
+          onClick={() => onChange((prev) => [...prev, { text: "" }])}
+        >
+          Add line
+        </Button>
+      </div>
+      {items.map((item, index) => (
+        <div key={index} className="rounded-2xl border border-white/10 bg-white/4 p-4">
+          <Input
+            label={`Line ${index + 1}`}
+            name={`${name}_${index}`}
+            value={item.text}
+            placeholder={placeholder}
+            onChange={(e) =>
+              onChange((prev) => prev.map((row, i) => (i === index ? { text: e.target.value } : row)))
+            }
+          />
+          <button
+            type="button"
+            onClick={() => onChange((prev) => prev.filter((_, i) => i !== index))}
+            className="mt-2 text-xs font-semibold text-red-300 hover:text-red-200"
+          >
+            Remove line
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 type Props = {
   mode: "create" | "edit";
   destinations: DestinationOut[];
@@ -36,6 +86,19 @@ type DayDraft = {
   description: string;
   stopName: string;
 };
+
+type TermDraft = { text: string };
+
+function termPayload(items: TermDraft[]) {
+  return items
+    .map((item) => item.text.trim())
+    .filter(Boolean)
+    .map((text, index) => ({ text, sort_order: index }));
+}
+
+function termDrafts(items: { text: string }[] | undefined): TermDraft[] {
+  return items?.length ? items.map((item) => ({ text: item.text })) : [{ text: "" }];
+}
 
 function buildDayPayload(days: DayDraft[]): PackageDayCreate[] {
   return days
@@ -115,6 +178,8 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((item) => item.url) ?? [],
   );
+  const [inclusions, setInclusions] = useState<TermDraft[]>(() => termDrafts(initial?.inclusions));
+  const [exclusions, setExclusions] = useState<TermDraft[]>(() => termDrafts(initial?.exclusions));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -173,6 +238,8 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
             days: dayPayload,
             hotels: hotelPayload,
             media: mediaPayload,
+            inclusions: termPayload(inclusions),
+            exclusions: termPayload(exclusions),
           },
           token,
         );
@@ -192,6 +259,8 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
           days: dayPayload,
           hotels: hotelPayload,
           media: mediaPayload,
+          inclusions: termPayload(inclusions),
+          exclusions: termPayload(exclusions),
         };
 
         await createPackage(payload, token);
@@ -246,7 +315,7 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
           onChange={(e) => setDurationNights(e.target.value)}
         />
         <Input
-          label="Price"
+          label="Price per person"
           name="price"
           required
           value={price}
@@ -330,6 +399,23 @@ export function PackageForm({ mode, destinations, hotels, initial }: Props) {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="grid gap-6 border-t border-white/10 pt-5 md:grid-cols-2">
+        <TermColumn
+          title="Package inclusion"
+          name="inclusion"
+          placeholder="Hotel stay, breakfast, transfers…"
+          items={inclusions}
+          onChange={setInclusions}
+        />
+        <TermColumn
+          title="Package exclusion"
+          name="exclusion"
+          placeholder="Flights, personal expenses, tips…"
+          items={exclusions}
+          onChange={setExclusions}
+        />
       </div>
 
       <div className="grid gap-4 border-t border-white/10 pt-5 sm:grid-cols-2">

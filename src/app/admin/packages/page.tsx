@@ -37,7 +37,7 @@ export default async function AdminPackagesPage() {
                   <td className="text-white/55">
                     {pkg.duration_days}D / {pkg.duration_nights}N
                   </td>
-                  <td className="text-white/55">{formatPrice(pkg.price, pkg.currency)}</td>
+                  <td className="text-white/55">{formatPrice(pkg.price, pkg.currency)} / person</td>
                   <td>
                     <StatusPill active={pkg.is_active} />
                   </td>
